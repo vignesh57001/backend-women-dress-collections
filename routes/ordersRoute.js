@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+require("dotenv").config();
 const { v4: uuidv4 } = require("uuid");
 
 const stripe = require("stripe")(
@@ -60,6 +60,27 @@ router.post("/getuserorders", async (req, res) => {
     res.send(orders);
   } catch (error) {
     return res.status(400).json({ message: "Something Went Wrong" });
+  }
+});
+
+router.get("/getallorders", async (req, res) => {
+  try {
+    const orders = await Order.find({});
+    res.send(orders);
+  } catch (error) {
+    return res.status(400).json({ message: error });
+  }
+});
+
+router.post("/deliverorder", async (req, res) => {
+  const orderid = req.body.orderid;
+  try {
+    const order = await Order.findOne({ _id: orderid });
+    order.isDelivered = true;
+    await order.save();
+    res.send("Order Delivered Successfully");
+  } catch (error) {
+    return res.status(400).json({ message: error });
   }
 });
 
